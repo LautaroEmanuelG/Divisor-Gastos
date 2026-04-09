@@ -6,6 +6,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Divisor de Gastos</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%236c5ce7'/><line x1='16' y1='4' x2='16' y2='28' stroke='white' stroke-width='3' stroke-linecap='round'/><path d='M22 9H13a4.5 4.5 0 0 0 0 9h6a4.5 4.5 0 0 1 0 9H8' stroke='white' stroke-width='3' stroke-linecap='round'/></svg>" />
   <style is:global>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -830,19 +831,13 @@
 
     /* Shared session banner */
     .shared-banner {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 400;
       background: var(--accent);
       color: white;
       padding: 14px 20px;
       display: flex; align-items: center; gap: 12px;
       box-shadow: 0 4px 20px rgba(108,92,231,0.3);
-      animation: slideDown 0.35s cubic-bezier(.25,.8,.25,1);
     }
-    @keyframes slideDown {
-      from { transform: translateY(-100%); }
-      to   { transform: translateY(0); }
-    }
-    .shared-banner-text { flex: 1; font-size: 14px; font-weight: 600; }
+    .shared-banner-text { font-size: 14px; font-weight: 600; }
     .shared-banner-sub { font-size: 12px; opacity: 0.8; margin-top: 1px; }
 
     /* Toast */
@@ -900,7 +895,6 @@
 </head>
 <body>
 
-<!-- Shared session banner (injected by JS if ?s= in URL) -->
 <div id="shared-banner" style="display:none;"></div>
 
 <header>
@@ -1106,25 +1100,18 @@
     <div id="error-box" class="error-box" style="display:none;"></div>
 
     <!-- Save & Share bar -->
-    <div class="save-bar">
+    <div class="save-bar" id="save-bar">
       <div class="save-bar-info">
-        <div class="title">💾 Guardar esta sesión</div>
-        <div class="sub">Se guarda en tu historial local (máx. 20 registros)</div>
+        <div class="title">🔗 Guardar y compartir</div>
+        <div class="sub">Se guarda en historial local y genera un link para compartir</div>
       </div>
       <div class="save-bar-actions">
-        <button class="btn btn-ghost btn-sm" onclick="copyShareUrl()">
+        <button class="btn btn-primary btn-sm" id="btn-compartir" onclick="saveAndShare()">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
             <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
             <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
           </svg>
-          Copiar link
-        </button>
-        <button class="btn btn-primary btn-sm" onclick="saveSession()">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
-            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
-            <polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>
-          </svg>
-          Guardar
+          Compartir
         </button>
       </div>
     </div>
@@ -1251,9 +1238,13 @@ function goToStep(n) {
   });
 
   // Render context
+  if (n === 1) renderChips();
   if (n === 2) renderCurrencyRateLabel();
   if (n === 3) { renderPayerGrid(); renderExpensesList(); selectedExpenseCurrency = state.baseCurrency; updateCurrencyBtn(); }
-  if (n === 4) renderAltCurrencySection();
+  if (n === 4) {
+    renderAltCurrencySection();
+    document.querySelector('.save-bar').style.display = _isSharedView ? 'none' : '';
+  }
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -1298,7 +1289,7 @@ function renderChips() {
     return `<span class="chip" style="background:${color}18; color:${color};">
       <span class="chip-avatar" style="background:${color};">${initials(p)}</span>
       <span class="chip-name">${p}</span>
-      <button class="chip-remove" onclick="removeParticipant('${p}')" style="color:${color}80;">
+      <button class="chip-remove" onclick="removeParticipant(${JSON.stringify(p)})" style="color:${color}80;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round">
           <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
         </svg>
@@ -1927,11 +1918,7 @@ function saveHistory(list) {
   localStorage.setItem(HISTORY_KEY, JSON.stringify(list));
 }
 
-function saveSession() {
-  if (!state.expenses.length && !state.participants.length) {
-    showToast('⚠️ No hay datos para guardar');
-    return;
-  }
+function _saveToHistory() {
   const history = loadHistory();
   const totalBase = state.expenses.reduce((s, e) => s + e.amountInBase, 0);
   const entry = {
@@ -1948,7 +1935,6 @@ function saveSession() {
   if (history.length > MAX_HISTORY) history.splice(MAX_HISTORY);
   saveHistory(history);
   updateHistoryBadge();
-  showToast('✅ Sesión guardada en historial');
 }
 
 function deleteSession(id, e) {
@@ -2044,82 +2030,114 @@ function closeHistoryIfOverlay(e) {
   if (e.target === document.getElementById('history-overlay')) closeHistory();
 }
 
-// ─── SHARE / URL ──────────────────────────────────────────────────────────────
-function stateToB64(s) {
-  return btoa(encodeURIComponent(JSON.stringify(s)));
-}
-function b64ToState(enc) {
-  return JSON.parse(decodeURIComponent(atob(enc)));
-}
-function buildShareUrl(snapshot) {
-  const base = location.origin + location.pathname;
-  return `${base}?s=${stateToB64(snapshot)}`;
+// ─── SHARE (server-side) ──────────────────────────────────────────────────────
+let _isSharedView = false;
+
+async function _postSession(snapshot) {
+  const res = await fetch('/api/session', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(snapshot),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || res.status);
+  }
+  const { id } = await res.json();
+  return `${location.origin}${location.pathname}?gasto=${id}`;
 }
 
-function copyShareUrl() {
-  const url = buildShareUrl(state);
-  navigator.clipboard.writeText(url)
-    .then(() => showToast('🔗 Link copiado al portapapeles'))
-    .catch(() => {
-      // fallback
-      const ta = document.createElement('textarea');
-      ta.value = url; ta.style.position = 'fixed'; ta.style.opacity = '0';
-      document.body.appendChild(ta); ta.focus(); ta.select();
-      document.execCommand('copy');
-      document.body.removeChild(ta);
-      showToast('🔗 Link copiado al portapapeles');
-    });
+async function saveAndShare() {
+  if (!state.expenses.length && !state.participants.length) {
+    showToast('⚠️ No hay datos para compartir');
+    return;
+  }
+  const btn = document.getElementById('btn-compartir');
+  btn.disabled = true;
+  btn.textContent = 'Generando…';
+  try {
+    _saveToHistory();
+    const url = await _postSession(state);
+    await navigator.clipboard.writeText(url).catch(() => {});
+    showToast('🔗 Link copiado — sesión guardada en historial');
+  } catch (err) {
+    console.error(err);
+    showToast('⚠️ Error al generar el link');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg> Compartir`;
+  }
 }
 
-function shareSession(id, e) {
+async function shareSession(id, e) {
   e.stopPropagation();
   const entry = loadHistory().find(s => s.id === id);
   if (!entry) return;
-  const url = buildShareUrl(entry.snapshot);
-  navigator.clipboard.writeText(url)
-    .then(() => showToast('🔗 Link copiado al portapapeles'))
-    .catch(() => showToast('⚠️ No se pudo copiar'));
+  try {
+    const url = await _postSession(entry.snapshot);
+    await navigator.clipboard.writeText(url).catch(() => {});
+    showToast('🔗 Link copiado al portapapeles');
+  } catch { showToast('⚠️ Error al generar el link'); }
 }
 
 // ─── SHARED SESSION DETECTION ─────────────────────────────────────────────────
-function checkSharedUrl() {
+async function checkSharedUrl() {
   const params = new URLSearchParams(location.search);
-  const enc = params.get('s');
-  if (!enc) return;
+  const gasto = params.get('gasto');
+  if (!gasto) return;
+
+  // Remove param from URL without reload
+  history.replaceState({}, '', location.pathname);
+
   try {
-    const shared = b64ToState(enc);
-    const banner = document.getElementById('shared-banner');
-    banner.innerHTML = `
-      <div class="shared-banner">
-        <div>
-          <div class="shared-banner-text">📤 Sesión compartida: <strong>${shared.tripName || 'Sin nombre'}</strong></div>
-          <div class="shared-banner-sub">${shared.participants?.join(', ')} · ${shared.expenses?.length || 0} gastos</div>
-        </div>
-        <button class="btn btn-ghost btn-sm" style="background:rgba(255,255,255,0.2); border-color:rgba(255,255,255,0.3); color:white;"
-          onclick="loadSharedSession()">📂 Cargar</button>
-        <button class="btn-card" style="color:white; background:rgba(255,255,255,0.15); border:none; width:32px; height:32px;"
-          onclick="dismissSharedBanner()">✕</button>
-      </div>`;
-    banner.style.display = 'block';
-    // push state to remove ?s= from URL without reload
-    window._sharedState = shared;
-    history.replaceState({}, '', location.pathname);
-  } catch { /* URL malformed, ignore */ }
+    const res = await fetch(`/api/session/${gasto}`);
+    if (!res.ok) { showToast('⚠️ Sesión no encontrada'); return; }
+    const shared = await res.json();
+
+    _isSharedView = true;
+    state = shared;
+    // Do NOT save to localStorage — read-only view
+    applyStateToUIReadOnly();
+    goToStep(4);
+    showSharedBanner(shared.tripName);
+  } catch { showToast('⚠️ Error al cargar la sesión'); }
 }
 
-function loadSharedSession() {
-  if (!window._sharedState) return;
-  state = JSON.parse(JSON.stringify(window._sharedState));
-  save();
-  dismissSharedBanner();
-  applyStateToUI();
-  showToast(`📂 Sesión cargada correctamente`);
+function applyStateToUIReadOnly() {
+  document.getElementById('trip-name').value = state.tripName;
+  document.getElementById('base-currency-select').value = state.baseCurrency;
+  renderHeaderName();
+  renderChips();
+  renderExtraCurrencies();
+  renderPayerGrid();
+  renderExpensesList();
+  renderCurrencyRateLabel();
+}
+
+function showSharedBanner(tripName) {
+  const banner = document.getElementById('shared-banner');
+  banner.innerHTML = `<div class="shared-banner">
+    <div style="flex:1;">
+      <div class="shared-banner-text">👁️ Vista compartida: <strong>${tripName || 'Sin nombre'}</strong></div>
+      <div class="shared-banner-sub">Solo lectura · no se guarda en tu historial</div>
+    </div>
+    <button class="btn btn-ghost btn-sm" style="background:rgba(255,255,255,0.2);border-color:rgba(255,255,255,0.3);color:white;" onclick="startNewSession()">+ Nueva sesión</button>
+    <button style="color:white;background:rgba(255,255,255,0.15);border:none;width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;" onclick="dismissSharedBanner()">✕</button>
+  </div>`;
+  banner.style.display = 'block';
 }
 
 function dismissSharedBanner() {
   const b = document.getElementById('shared-banner');
-  b.innerHTML = '';
-  b.style.display = 'none';
+  b.innerHTML = ''; b.style.display = 'none';
+}
+
+function startNewSession() {
+  _isSharedView = false;
+  state = { tripName:'', participants:[], baseCurrency:'ARS', extraCurrencies:[], expenses:[] };
+  save();
+  dismissSharedBanner();
+  applyStateToUI();
 }
 
 // ─── TOAST ────────────────────────────────────────────────────────────────────
