@@ -1192,6 +1192,9 @@
 </div>
 
 <script is:inline>
+// ─── LZ-STRING (compresión para URLs) ─────────────────────────────────────────
+var LZString=function(){var r=String.fromCharCode,o="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",n="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-$",e={};function t(r,o){if(!e[r]){e[r]={};for(var n=0;n<r.length;n++)e[r][r.charAt(n)]=n}return e[r][o]}var i={compressToEncodedURIComponent:function(r){return null==r?"":i._compress(r,6,function(r){return n.charAt(r)})},decompressFromEncodedURIComponent:function(r){return null==r?"":""==r?null:(r=r.replace(/ /g,"+"),i._decompress(r.length,32,function(o){return t(n,r.charAt(o))}))},_compress:function(r,o,n){if(null==r)return"";var e,t,i,s={},u={},a="",p="",c="",l=2,f=3,h=2,d=[],m=0,v=0;for(i=0;i<r.length;i+=1)if(a=r.charAt(i),Object.prototype.hasOwnProperty.call(s,a)||(s[a]=f++,u[a]=!0),p=c+a,Object.prototype.hasOwnProperty.call(s,p))c=p;else{if(Object.prototype.hasOwnProperty.call(u,c)){if(c.charCodeAt(0)<256){for(e=0;e<h;e++)m<<=1,v==o-1?(v=0,d.push(n(m)),m=0):v++;for(t=c.charCodeAt(0),e=0;e<8;e++)m=m<<1|1&t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t>>=1}else{for(t=1,e=0;e<h;e++)m=m<<1|t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t=0;for(t=c.charCodeAt(0),e=0;e<16;e++)m=m<<1|1&t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t>>=1}0==--l&&(l=Math.pow(2,h),h++),delete u[c]}else for(t=s[c],e=0;e<h;e++)m=m<<1|1&t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t>>=1;0==--l&&(l=Math.pow(2,h),h++),s[p]=f++,c=String(a)}if(""!==c){if(Object.prototype.hasOwnProperty.call(u,c)){if(c.charCodeAt(0)<256){for(e=0;e<h;e++)m<<=1,v==o-1?(v=0,d.push(n(m)),m=0):v++;for(t=c.charCodeAt(0),e=0;e<8;e++)m=m<<1|1&t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t>>=1}else{for(t=1,e=0;e<h;e++)m=m<<1|t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t=0;for(t=c.charCodeAt(0),e=0;e<16;e++)m=m<<1|1&t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t>>=1}0==--l&&(l=Math.pow(2,h),h++),delete u[c]}else for(t=s[c],e=0;e<h;e++)m=m<<1|1&t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t>>=1;0==--l&&(l=Math.pow(2,h),h++)}for(t=2,e=0;e<h;e++)m=m<<1|1&t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t>>=1;for(;;){if(m<<=1,v==o-1){d.push(n(m));break}v++}return d.join("")},_decompress:function(o,n,e){var t,i,s,u,a,p,c,l=[],f=4,h=4,d=3,m="",v=[],g={val:e(0),position:n,index:1};for(t=0;t<3;t+=1)l[t]=t;for(s=0,a=Math.pow(2,2),p=1;p!=a;)u=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=e(g.index++)),s|=(u>0?1:0)*p,p<<=1;switch(s){case 0:for(s=0,a=Math.pow(2,8),p=1;p!=a;)u=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=e(g.index++)),s|=(u>0?1:0)*p,p<<=1;c=r(s);break;case 1:for(s=0,a=Math.pow(2,16),p=1;p!=a;)u=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=e(g.index++)),s|=(u>0?1:0)*p,p<<=1;c=r(s);break;case 2:return""}for(l[3]=c,i=c,v.push(c);;){if(g.index>o)return"";for(s=0,a=Math.pow(2,d),p=1;p!=a;)u=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=e(g.index++)),s|=(u>0?1:0)*p,p<<=1;switch(c=s){case 0:for(s=0,a=Math.pow(2,8),p=1;p!=a;)u=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=e(g.index++)),s|=(u>0?1:0)*p,p<<=1;l[h++]=r(s),c=h-1,f--;break;case 1:for(s=0,a=Math.pow(2,16),p=1;p!=a;)u=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=e(g.index++)),s|=(u>0?1:0)*p,p<<=1;l[h++]=r(s),c=h-1,f--;break;case 2:return v.join("")}if(0==f&&(f=Math.pow(2,d),d++),l[c])m=l[c];else{if(c!==h)return null;m=i+i.charAt(0)}v.push(m),l[h++]=i+m.charAt(0),i=m,0==--f&&(f=Math.pow(2,d),d++)}}};return i}();
+
 // ─── COLORS ───────────────────────────────────────────────────────────────────
 const COLORS = ['#6c5ce7','#00b894','#e17055','#0984e3','#fd79a8','#fdcb6e','#00cec9','#a29bfe','#d63031','#55efc4'];
 function colorFor(name) {
@@ -2030,88 +2033,72 @@ function closeHistoryIfOverlay(e) {
   if (e.target === document.getElementById('history-overlay')) closeHistory();
 }
 
-// ─── SHARE (server-side) ──────────────────────────────────────────────────────
+// ─── SHARE (URL comprimida) ───────────────────────────────────────────────────
 let _isSharedView = false;
 
-async function _postSession(snapshot) {
-  const res = await fetch('/api/session', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(snapshot),
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.error || res.status);
-  }
-  const { id } = await res.json();
-  return `${location.origin}${location.pathname}?gasto=${id}`;
+function _compressState(s) {
+  return LZString.compressToEncodedURIComponent(JSON.stringify(s));
+}
+function _decompressState(str) {
+  return JSON.parse(LZString.decompressFromEncodedURIComponent(str));
 }
 
-async function saveAndShare() {
+function saveAndShare() {
   if (!state.expenses.length && !state.participants.length) {
     showToast('⚠️ No hay datos para compartir');
     return;
   }
-  const btn = document.getElementById('btn-compartir');
-  btn.disabled = true;
-  btn.textContent = 'Generando…';
-  try {
-    _saveToHistory();
-    const url = await _postSession(state);
-    await navigator.clipboard.writeText(url).catch(() => {});
-    showToast('🔗 Link copiado — sesión guardada en historial');
-  } catch (err) {
-    console.error(err);
-    showToast('⚠️ Error al generar el link');
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg> Compartir`;
-  }
+  _saveToHistory();
+  const encoded = _compressState(state);
+  const url = `${location.origin}${location.pathname}?s=${encoded}`;
+  navigator.clipboard.writeText(url)
+    .then(() => showToast('🔗 Link copiado — sesión guardada'))
+    .catch(() => {
+      const ta = document.createElement('textarea');
+      ta.value = url; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.focus(); ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      showToast('🔗 Link copiado — sesión guardada');
+    });
 }
 
-async function shareSession(id, e) {
+function shareSession(id, e) {
   e.stopPropagation();
   const entry = loadHistory().find(s => s.id === id);
   if (!entry) return;
-  try {
-    const url = await _postSession(entry.snapshot);
-    await navigator.clipboard.writeText(url).catch(() => {});
-    showToast('🔗 Link copiado al portapapeles');
-  } catch { showToast('⚠️ Error al generar el link'); }
+  const encoded = _compressState(entry.snapshot);
+  const url = `${location.origin}${location.pathname}?s=${encoded}`;
+  navigator.clipboard.writeText(url)
+    .then(() => showToast('🔗 Link copiado al portapapeles'))
+    .catch(() => showToast('⚠️ No se pudo copiar'));
 }
 
 // ─── SHARED SESSION DETECTION ─────────────────────────────────────────────────
-async function checkSharedUrl() {
+function checkSharedUrl() {
   const params = new URLSearchParams(location.search);
-  const gasto = params.get('gasto');
-  if (!gasto) return;
+  const encoded = params.get('s');
+  if (!encoded) return;
 
-  // Remove param from URL without reload
   history.replaceState({}, '', location.pathname);
 
   try {
-    const res = await fetch(`/api/session/${gasto}`);
-    if (!res.ok) { showToast('⚠️ Sesión no encontrada'); return; }
-    const shared = await res.json();
+    const shared = _decompressState(encoded);
+    if (!Array.isArray(shared.participants) || !Array.isArray(shared.expenses)) throw new Error();
 
     _isSharedView = true;
     state = shared;
-    // Do NOT save to localStorage — read-only view
-    applyStateToUIReadOnly();
+    document.getElementById('trip-name').value = state.tripName;
+    document.getElementById('base-currency-select').value = state.baseCurrency;
+    renderHeaderName();
+    renderChips();
+    renderExtraCurrencies();
+    renderPayerGrid();
+    renderExpensesList();
+    renderCurrencyRateLabel();
     goToStep(4);
     showSharedBanner(shared.tripName);
-  } catch { showToast('⚠️ Error al cargar la sesión'); }
-}
-
-function applyStateToUIReadOnly() {
-  document.getElementById('trip-name').value = state.tripName;
-  document.getElementById('base-currency-select').value = state.baseCurrency;
-  renderHeaderName();
-  renderChips();
-  renderExtraCurrencies();
-  renderPayerGrid();
-  renderExpensesList();
-  renderCurrencyRateLabel();
+  } catch { showToast('⚠️ Link inválido o corrupto'); }
 }
 
 function showSharedBanner(tripName) {
