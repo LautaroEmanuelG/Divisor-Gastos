@@ -1,4 +1,3 @@
-// GET /api/s/[id]  → devuelve la sesión guardada
 export const prerender = false;
 
 import type { APIRoute } from 'astro';
@@ -9,8 +8,13 @@ export const GET: APIRoute = async ({ params }) => {
     return new Response('Not found', { status: 404 });
   }
   try {
-    const { kv } = await import('@vercel/kv');
-    const data = await kv.get<string>(`s:${id}`);
+    const { Redis } = await import('@upstash/redis');
+    const redis = new Redis({
+      url: process.env.UPSTASH_REDIS_REST_URL!,
+      token: process.env.UPSTASH_REDIS_REST_TOKEN!,
+    });
+
+    const data = await redis.get<string>(`s:${id}`);
     if (!data) return new Response('Not found', { status: 404 });
 
     const body = typeof data === 'string' ? data : JSON.stringify(data);

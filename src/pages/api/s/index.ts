@@ -1,11 +1,9 @@
-// POST /api/s  → guarda sesión, devuelve { id: "a3x9k2" }
 export const prerender = false;
 
 import type { APIRoute } from 'astro';
 
 function shortId() {
-  // 6 chars base36 → "?s=a3x9k2" = 9 chars total, siempre < 15
-  return Math.random().toString(36).slice(2, 8);
+  return Math.random().toString(36).slice(2, 8); // ~6 chars base36
 }
 
 const TTL_SECONDS = 60 * 60 * 24 * 30; // 30 días
@@ -22,9 +20,14 @@ export const POST: APIRoute = async ({ request }) => {
       return json({ error: 'Datos inválidos' }, 400);
     }
 
-    const { kv } = await import('@vercel/kv');
+    const { Redis } = await import('@upstash/redis');
+    const redis = new Redis({
+      url: process.env.UPSTASH_REDIS_REST_URL!,
+      token: process.env.UPSTASH_REDIS_REST_TOKEN!,
+    });
+
     const id = shortId();
-    await kv.set(`s:${id}`, text, { ex: TTL_SECONDS });
+    await redis.set(`s:${id}`, text, { ex: TTL_SECONDS });
 
     return json({ id });
   } catch (err) {
