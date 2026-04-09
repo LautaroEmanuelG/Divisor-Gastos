@@ -10,10 +10,10 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0"
     />
-    <title>Divisor de Gastos</title>
+    <title>La Jodita</title>
     <link
       rel="icon"
-      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%236c5ce7'/><line x1='16' y1='4' x2='16' y2='28' stroke='white' stroke-width='3' stroke-linecap='round'/><path d='M22 9H13a4.5 4.5 0 0 0 0 9h6a4.5 4.5 0 0 1 0 9H8' stroke='white' stroke-width='3' stroke-linecap='round'/></svg>"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%236c5ce7'/><circle cx='11' cy='12' r='3' fill='white'/><circle cx='21' cy='12' r='3' fill='white'/><path d='M8 22Q16 28 24 22' stroke='white' stroke-width='2.6' fill='none' stroke-linecap='round'/></svg>"
     />
     <style is:global>
       *,
@@ -86,6 +86,17 @@
         font-weight: 700;
         color: var(--text);
         letter-spacing: -0.3px;
+      }
+      header .app-version {
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--accent);
+        background: var(--accent-light);
+        border: 1px solid var(--accent-mid);
+        border-radius: 999px;
+        padding: 3px 8px;
+        line-height: 1;
+        white-space: nowrap;
       }
       header .trip-name {
         color: var(--muted);
@@ -1471,18 +1482,30 @@
           viewBox="0 0 24 24"
           fill="none"
           stroke="white"
-          stroke-width="2.5"
+          stroke-width="2.3"
           stroke-linecap="round">
-          <line
-            x1="12"
-            y1="1"
-            x2="12"
-            y2="23"
-          ></line>
-          <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+          <circle
+            cx="8"
+            cy="9"
+            r="2.1"
+            fill="white"
+            stroke="none"
+          ></circle>
+          <circle
+            cx="16"
+            cy="9"
+            r="2.1"
+            fill="white"
+            stroke="none"
+          ></circle>
+          <path d="M5.5 15Q12 20 18.5 15"></path>
         </svg>
       </div>
-      <h1>Divisor</h1>
+      <h1>La Jodita</h1>
+      <span
+        class="app-version"
+        id="app-version"
+      ></span>
       <span
         class="trip-name"
         id="header-trip-name"
@@ -2109,6 +2132,14 @@
         MXN: '$',
       };
       const USER_KEY = 'divisor-user-v1';
+      const APP_VERSION = {
+        major: 2,
+        minor: 1,
+        patch: 0,
+        majorUpdates: 2,
+        minorUpdates: 1,
+      };
+      const APP_VERSION_LABEL = `v${APP_VERSION.major}.${APP_VERSION.minor}.${APP_VERSION.patch}`;
 
       function getOrCreateUserId() {
         const existing = localStorage.getItem(USER_KEY);
@@ -2129,6 +2160,12 @@
       }
       function formatMoney(value, currencyCode) {
         return `${CURRENCY_SYMBOLS[currencyCode] || '$'}${formatAmount(value)}`;
+      }
+      function renderAppVersion() {
+        const el = document.getElementById('app-version');
+        if (!el) return;
+        el.textContent = `Versión ${APP_VERSION_LABEL} · M${APP_VERSION.majorUpdates}/m${APP_VERSION.minorUpdates}`;
+        el.title = `${APP_VERSION.majorUpdates} actualizaciones mayores · ${APP_VERSION.minorUpdates} menores`;
       }
 
       // ─── STEP NAVIGATION ──────────────────────────────────────────────────────────
@@ -3326,6 +3363,7 @@
       document.getElementById('trip-name').value = state.tripName;
       document.getElementById('base-currency-select').value =
         state.baseCurrency;
+      renderAppVersion();
       renderHeaderName();
       renderChips();
       renderExtraCurrencies();

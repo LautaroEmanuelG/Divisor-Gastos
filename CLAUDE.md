@@ -1,137 +1,129 @@
-# CLAUDE.md — Divisor de Gastos
+# 🎯 CLAUDE.md — La Jodita
 
-Instrucciones para agentes IA que trabajen en este proyecto.
+Guía operativa para agentes IA y colaboradores técnicos del proyecto.
 
 ---
 
-## Arquitectura
+## 🧱 Arquitectura
 
-Una SPA estática de un solo archivo. Toda la app vive en:
+La app es una SPA estática de archivo único:
 
 ```text
 src/pages/index.astro
 ```
 
-- **HTML** — estructura de los 4 pasos (stepper)
-- **`<style is:global>`** — todo el CSS (global obligatorio por elementos dinámicos con innerHTML)
-- **`<script is:inline>`** — toda la lógica JS
+- HTML: estructura de los 4 pasos
+- style is:global: estilos globales (requerido por componentes dinámicos con innerHTML)
+- script is:inline: estado, lógica y renderizado
 
-No hay componentes separados, APIs, ni base de datos.
+No introducir componentes Astro separados ni frameworks de UI sin pedido explícito.
 
 ---
 
-## Estado de la aplicación
+## 🧠 Estado y persistencia
 
 ```js
-// Clave en localStorage: 'divisor-v2'
+// localStorage
+KEY = 'divisor-v2'                 // estado principal
+HISTORY_KEY = 'divisor-history-v1' // historial de sesiones
+USER_KEY = 'divisor-user-v1'       // identificador local de usuario
+
 state = {
-  tripName:        string,
-  participants:    string[],
-  baseCurrency:    string,           // 'ARS' por defecto
-  extraCurrencies: { code, rate }[], // 1 baseCurrency = rate extraCurrency
+  tripName: string,
+  participants: string[],
+  baseCurrency: string,
+  extraCurrencies: [{ code, rate }],
   expenses: [{
     id,
     description,
     paidBy,
     currency,
-    amount,       // en la moneda del gasto
-    amountInBase, // convertido a baseCurrency
-    splits: {     // { [persona]: monto en moneda del gasto }
-      [persona]: number
-    },
+    amount,
+    amountInBase,
+    splits,
     emoji
   }]
 }
 ```
 
-Siempre llamar `save()` después de mutar `state`.
+Regla crítica: siempre ejecutar save() después de mutar state.
 
 ---
 
-## Funciones clave
+## 🚀 Funcionalidades
+
+- Carga de participantes con avatar/color determinista
+- Gastos multi-moneda con conversión a moneda base
+- Liquidación automática por compensación greedy
+- Historial local de sesiones (máximo 10)
+- Compartir sesiones vía API + Redis (TTL)
+- Restricción de compartido: solo creador puede re-compartir
+- Redondeo visual global sin decimales
+- Versión visible en header con conteo de cambios mayores/menores
+
+---
+
+## 🧩 Patrones de código
+
+- Flujo render-first: mutar estado, save(), render de sección afectada
+- Helpers de formato centralizados: roundAmount, formatAmount, formatMoney
+- Variables globales de UI controladas por prefijo \_ (ejemplo: \_liquidacion)
+- IDs en DOM con naming semántico (history-count, btn-compartir)
+- Cálculos monetarios internos en centavos para liquidación
+
+---
+
+## 🎨 Estilos y UX
+
+- Mantener diseño actual: tarjetas suaves, acento violeta, tipografía limpia
+- En mobile, la tabla de balance muestra solo avatar en columna Persona
+- Evitar cambios de tema drásticos sin aprobación
+- Mantener animaciones ligeras y consistentes (fade/slide/pop)
+- No quitar style is:global
+
+---
+
+## 🔖 Versionado de producto
+
+Se usa versionado semántico visible en header:
 
 ```text
-goToStep(n)           Navega entre pasos 1-4, actualiza stepper visual
-addParticipant()      Lee input, agrega a state.participants, renderiza chips
-addExpense()          Valida monto+pagador, calcula splits, push a state.expenses
-calcularLiquidacion() Corre el algoritmo de compensación, renderiza resultados
-renderChips()         Renderiza tags de participantes con color por persona
-renderPayerGrid()     Renderiza botones de pagador (usando colorFor)
-renderExpensesList()  Renderiza tarjetas de gastos con botón de edición inline
-toggleEdit(id)        Abre/cierra el panel de edición de un gasto
-saveExpenseEdit(id)   Aplica cambios de pagador y división al gasto
-colorFor(name)        Genera color determinista por nombre (hash → COLORS[])
-initials(name)        Retorna 1-2 letras iniciales del nombre
+APP_VERSION = { major, minor, patch, majorUpdates, minorUpdates }
 ```
+
+Reglas sugeridas:
+
+- major: cambios de UX/arquitectura que alteran flujos clave
+- minor: nuevas funcionalidades compatibles
+- patch: correcciones sin cambio funcional relevante
+
+Actualizar APP_VERSION y su badge al cerrar cada release.
 
 ---
 
-## Algoritmo de liquidación
+## 🤝 Forma de trabajo
 
-```text
-1. pagos[persona]    = Σ amountInBase de gastos que pagó
-2. consumos[persona] = Σ splits[persona] × convFactor por gasto
-3. balance           = pagos − consumos
-4. deudores          = personas con balance < 0 (deben plata)
-5. acreedores        = personas con balance > 0 (les deben)
-6. greedy loop       = min(deuda, crédito) por par hasta saldar todo
-```
-
-Tolerancia: si `|totalPagado − totalConsumido| > 1.00` (en moneda base) se muestra error.
+1. Leer el bloque afectado completo antes de editar.
+2. Aplicar cambios puntuales en index.astro (sin refactors amplios no pedidos).
+3. Validar con npm run build.
+4. Si se toca documentación, actualizar README.md + CLAUDE.md + agent.md.
+5. No romper compatibilidad de localStorage keys existentes.
 
 ---
 
-## Reglas críticas del CSS
-
-> **IMPORTANTE:** El `<style>` DEBE tener `is:global`.
-
-Sin `is:global`, Astro scopea los selectores con atributos `data-astro-cid-xxx`.
-Los elementos generados dinámicamente vía `innerHTML` no tienen esos atributos,
-por lo que el CSS de clase no les aplica (solo los inline `style=""`).
-
-```astro
-<!-- ✅ Correcto -->
-<style is:global>
-  .transfer-body { display: flex; }
-</style>
-
-<!-- ❌ Roto — elementos dinámicos no reciben el scope -->
-<style>
-  .transfer-body { display: flex; }
-</style>
-```
-
----
-
-## Agregar monedas adicionales
-
-La tasa se define como: `1 baseCurrency = rate extraCurrency`
-
-```js
-// Ejemplo: base ARS, agregar USD
-// Si 1 ARS = 0.00068 USD → rate = 0.00068
-state.extraCurrencies.push({ code: 'USD', rate: 0.00068 })
-
-// Conversión de gasto en USD a ARS:
-amountInBase = amount / rate  // divido porque rate = ARS→USD
-```
-
----
-
-## Comandos
+## 🛠️ Comandos
 
 ```bash
-npm run dev      # http://localhost:4321
-npm run build    # output en /dist
-npm run preview  # sirve /dist
+npm run dev
+npm run build
+npm run preview
 ```
 
 ---
 
-## Qué NO hacer
+## 🚫 No hacer
 
-- No extraer componentes Astro separados sin que el usuario lo pida
-- No agregar frameworks de UI (React, Vue, etc.)
-- No agregar backend ni base de datos
-- No cambiar la clave `divisor-v2` de localStorage (rompe datos existentes)
-- No quitar `is:global` ni `is:inline` de los tags de style/script
+- No cambiar KEY = 'divisor-v2'
+- No quitar style is:global ni script is:inline
+- No agregar backend adicional fuera de las APIs ya existentes
+- No introducir dependencias de UI sin aprobación

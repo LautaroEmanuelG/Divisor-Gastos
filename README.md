@@ -1,4 +1,4 @@
-# 💸 Divisor de Gastos
+# 🎉 La Jodita
 
 > Dividí gastos entre amigos de forma simple, rápida y visual.
 > Soporta múltiples monedas y calcula automáticamente quién le debe a quién.
@@ -12,23 +12,53 @@
 
 ## ✨ Funcionalidades
 
-| Feature                     | Descripción                                                   |
-| --------------------------- | ------------------------------------------------------------- |
-| 👥 **Participantes**        | Avatares con color único generado por nombre                  |
-| 💱 **Multi-moneda**         | Moneda base configurable + equivalencias opcionales           |
-| ⚡ **Carga rápida**         | Click en avatar para seleccionar pagador, Enter para agregar  |
-| ✏️ **Edición inline**       | Editá quién pagó y la división sin salir de la lista          |
-| 🧮 **Liquidación**          | Mínimas transferencias para saldar todas las deudas           |
-| 💾 **Persistencia local**   | Todo se guarda en `localStorage`, sin cuenta ni login         |
-| 🔗 **Sesiones compartidas** | Guarda snapshot en Redis y genera links cortos para compartir |
+| Feature                      | Descripción                                                   |
+| ---------------------------- | ------------------------------------------------------------- |
+| 👥 **Participantes**         | Avatares con color único generado por nombre                  |
+| 💱 **Multi-moneda**          | Moneda base configurable + equivalencias opcionales           |
+| ⚡ **Carga rápida**          | Click en avatar para seleccionar pagador, Enter para agregar  |
+| ✏️ **Edición inline**        | Editá quién pagó y la división sin salir de la lista          |
+| 🧮 **Liquidación**           | Mínimas transferencias para saldar todas las deudas           |
+| 💾 **Persistencia local**    | Todo se guarda en `localStorage`, sin cuenta ni login         |
+| 🔗 **Sesiones compartidas**  | Guarda snapshot en Redis y genera links cortos para compartir |
+| 🧾 **Historial inteligente** | Guarda sesiones vistas/propias (máximo 10 por usuario)        |
+| 🔖 **Versionado visible**    | Badge de versión en header con tracking mayor/menor           |
+| 📱 **Mobile optimizado**     | En liquidación, columna Persona muestra solo avatar en mobile |
+
+---
+
+## 🔖 Versionado de producto
+
+La app muestra su versión al lado del título en el header.
+
+- Formato: `major.minor.patch`
+- Tracking visible: cantidad de actualizaciones mayores y menores
+
+Ejemplo de estructura en frontend:
+
+```js
+APP_VERSION = {
+  major: 2,
+  minor: 1,
+  patch: 0,
+  majorUpdates: 2,
+  minorUpdates: 1,
+};
+```
+
+Regla práctica:
+
+- major: cambios grandes de UX o arquitectura
+- minor: nuevas funcionalidades compatibles
+- patch: fixes sin cambios de flujo
 
 ---
 
 ## 🚀 Inicio rápido
 
 ```bash
-git clone git@github.com:LautaroEmanuelG/Divisor-Gastos.git
-cd Divisor-Gastos
+git clone git@github.com:LautaroEmanuelG/La-Jodita-Gastos.git
+cd La-Jodita-Gastos
 npm install
 npm run dev
 ```
@@ -71,6 +101,26 @@ Upstash Redis Persistencia temporal de sesiones compartidas (TTL 30 días)
 localStorage  Persistencia local para historial del navegador
 ```
 
+---
+
+## 🧩 Patrones de código
+
+- Flujo principal: mutar `state` -> `save()` -> render de UI afectada
+- Helpers de formato monetario centralizados
+- Cálculos de liquidación en centavos para evitar drift de floats
+- Render dinámico con `innerHTML` apoyado en `style is:global`
+- Restricción de compartido: solo sesión propia puede re-compartirse
+
+---
+
+## 🎨 Patrones de estilos
+
+- Diseño de tarjetas suaves y acento violeta
+- Animaciones cortas y consistentes (fade/slide/pop)
+- Responsive first en bloques críticos
+- En mobile, la tabla de balance prioriza avatar sobre texto
+- No reemplazar `style is:global`
+
 ## ☁️ Variables de entorno (Vercel)
 
 Para habilitar sesiones compartidas entre usuarios, configurá estas variables en el proyecto de Vercel:
@@ -83,7 +133,7 @@ Sin esas variables, las rutas de sesión (`/api/s`) responderán con error `503`
 ### Estructura del proyecto
 
 ```text
-Divisor-Gastos/
+La-Jodita-Gastos/
 ├── src/
 │   └── pages/
 │       └── index.astro    ← Toda la app (HTML + CSS global + JS inline)
@@ -105,6 +155,19 @@ npm run preview  # Preview del build de producción
 
 ---
 
+## 🤝 Forma de trabajo
+
+1. Leer completo el bloque que se va a tocar antes de editar.
+2. Aplicar cambios puntuales (sin refactors masivos no solicitados).
+3. Correr `npm run build` para validar.
+4. Si hay cambios de producto, mantener sincronizados:
+   - `README.md`
+   - `CLAUDE.md`
+   - `agent.md`
+5. No romper compatibilidad de claves en localStorage.
+
+---
+
 ## 📐 Algoritmo de liquidación
 
 El algoritmo minimiza la cantidad de transferencias necesarias:
@@ -121,7 +184,7 @@ El algoritmo minimiza la cantidad de transferencias necesarias:
 
 ## 🤖 Desarrollo con IA
 
-Este proyecto incluye [CLAUDE.md](./CLAUDE.md) con instrucciones para agentes IA.
+Este proyecto incluye [CLAUDE.md](./CLAUDE.md) y [agent.md](./agent.md) con instrucciones para agentes IA.
 
 Si usás Claude Code, el agente lee el contexto automáticamente:
 
