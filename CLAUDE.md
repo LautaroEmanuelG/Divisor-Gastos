@@ -88,16 +88,20 @@ Regla crítica: siempre ejecutar save() después de mutar state.
 Se usa versionado semántico visible en header:
 
 ```text
-APP_VERSION = { major, minor, patch, majorUpdates, minorUpdates }
+APP_VERSION = { major, minor, patch }
 ```
 
-Reglas sugeridas:
+Reglas de avance:
 
-- major: cambios de UX/arquitectura que alteran flujos clave
-- minor: nuevas funcionalidades compatibles
-- patch: correcciones sin cambio funcional relevante
+- patch: cambios pequeños y correcciones (1.0.1, 1.0.2, ...)
+- minor: cambios grandes compatibles de funcionalidad (1.1.0, 1.2.0, ...)
+- major: cambios disruptivos de flujo/arquitectura (2.0.0, 3.0.0, ...)
 
-Actualizar APP_VERSION y su badge al cerrar cada release.
+Política obligatoria:
+
+- Antes de subir una versión major, siempre preguntar al usuario.
+- Para patch/minor se puede proponer el incremento automáticamente según el alcance del cambio.
+- Mostrar en header solo `v{major}.{minor}`.
 
 ---
 

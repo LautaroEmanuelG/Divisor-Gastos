@@ -59,13 +59,19 @@ Mantener y evolucionar La Jodita sin romper:
 
 Constante actual en frontend:
 
-- APP_VERSION = { major, minor, patch, majorUpdates, minorUpdates }
+- APP_VERSION = { major, minor, patch }
 
-Criterio:
+Criterio de incremento:
 
-- major: cambios grandes de flujo/estructura
-- minor: nuevas capacidades sin ruptura
-- patch: fixes y ajustes menores
+- patch: cambios pequeños y fixes (1.0.1, 1.0.2, ...)
+- minor: mejoras grandes compatibles (1.1.0, 1.2.0, ...)
+- major: cambios disruptivos (2.0.0, ...)
+
+Regla obligatoria:
+
+- Antes de avanzar versión major, consultar y confirmar con el usuario.
+- Para patch/minor se puede proponer avance automático según impacto.
+- En UI mostrar solo v{major}.{minor} junto al título.
 
 ---
 
