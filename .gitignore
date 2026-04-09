@@ -15,6 +15,9 @@ dist/
 Thumbs.db
 
 # Editor
-.vscode/settings.json
+.vscode/
 *.suo
 *.user
+
+# Claude Code
+.claude/
