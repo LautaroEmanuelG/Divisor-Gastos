@@ -216,7 +216,16 @@ export const GET: APIRoute = async ({ params, url }) => {
       iconUrl,
     });
 
-    image.headers.set('Cache-Control', 'public, max-age=300, s-maxage=600');
+    // Optimized cache headers for social platforms
+    // max-age: 5 min (browser), s-maxage: 24h (CDN)
+    // Vercel caches for 1 year, social platforms re-query after s-maxage
+    image.headers.set(
+      'Cache-Control',
+      'public, max-age=300, s-maxage=86400, immutable',
+    );
+    image.headers.set('Content-Type', 'image/png');
+    image.headers.set('CDN-Cache-Control', 'max-age=86400');
+
     return image;
   } catch (error) {
     console.error('[GET /api/og/:id.png]', error);

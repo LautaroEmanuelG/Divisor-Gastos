@@ -1,0 +1,16 @@
+# 🤖 Robots configuration for La Jodita
+# See https://www.robotstxt.org/
+
+User-agent: *
+Allow: /
+Allow: /api/og/
+
+# Disallow API endpoints that shouldn't be indexed
+Disallow: /api/s/
+Disallow: /open-graph
+
+# Allow sitemap
+Sitemap: https://la-jodita.vercel.app/sitemap.xml
+
+# Crawl delay (optional)
+Crawl-delay: 1

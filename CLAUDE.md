@@ -60,6 +60,8 @@ Regla crítica: siempre ejecutar save() después de mutar state.
 - Restricción de compartido: solo creador puede re-compartir
 - Redondeo visual global sin decimales
 - Versión visible en header con conteo de cambios mayores/menores
+- Página de preview Open Graph en `/open-graph`
+- La vista `/open-graph` solo debe responder en localhost; en producción devuelve 404 y no debe indexarse
 
 ---
 
@@ -111,7 +113,8 @@ Política obligatoria:
 2. Aplicar cambios puntuales en index.astro (sin refactors amplios no pedidos).
 3. Validar con npm run build.
 4. Si se toca documentación, actualizar README.md + CLAUDE.md + agent.md.
-5. No romper compatibilidad de localStorage keys existentes.
+5. No crear archivos markdown extra de información, resumen, guías o quick-start; toda la información relevante de desarrollo, patrones, SEO y operativa debe vivir solo en README.md, CLAUDE.md y AGENT.md.
+6. No romper compatibilidad de localStorage keys existentes.
 
 ---
 
