@@ -45,6 +45,11 @@
         --radius-sm: 10px;
       }
 
+      html,
+      body {
+        height: 100%;
+      }
+
       body {
         font-family:
           -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
@@ -52,7 +57,9 @@
         color: var(--text);
         font-size: 14px;
         line-height: 1.5;
-        min-height: 100vh;
+        min-height: 100dvh;
+        display: flex;
+        flex-direction: column;
       }
 
       /* ── HEADER ── */
@@ -194,6 +201,8 @@
         max-width: 640px;
         margin: 0 auto;
         padding: 28px 20px 80px;
+        width: 100%;
+        flex: 1;
       }
 
       /* ── PANELS ── */
@@ -414,6 +423,60 @@
         flex-wrap: wrap;
         gap: 8px;
         min-height: 36px;
+      }
+      /* ── FOOTER ── */
+      .app-footer {
+        width: 100%;
+        margin-top: auto;
+        padding: 18px 20px 22px;
+        background: linear-gradient(
+          140deg,
+          rgba(108, 92, 231, 0.08),
+          rgba(162, 155, 254, 0.14)
+        );
+        border-top: 1.5px solid var(--accent-mid);
+      }
+      .app-footer-card {
+        max-width: 640px;
+        margin: 0 auto;
+        padding: 0;
+      }
+      .app-footer-title {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--accent);
+        letter-spacing: 0.2px;
+      }
+      .app-footer-text {
+        margin-top: 6px;
+        color: var(--text);
+        font-size: 12px;
+        line-height: 1.45;
+      }
+      .app-footer-text a {
+        color: var(--accent);
+        font-weight: 700;
+        text-decoration-thickness: 1.5px;
+        text-underline-offset: 2px;
+      }
+      .app-footer-text a:hover {
+        color: #5a4ed1;
+      }
+      .app-footer-meta {
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 1px dashed rgba(108, 92, 231, 0.35);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        flex-wrap: wrap;
+        font-size: 11px;
+        color: var(--muted);
+      }
+      .app-footer-powered {
+        color: var(--accent);
+        font-weight: 700;
       }
       @keyframes popIn {
         from {
@@ -1259,6 +1322,9 @@
         .balance-table .avatar-name {
           display: none;
         }
+        .app-footer {
+          padding: 16px 14px 20px;
+        }
       }
 
       .text-green {
@@ -2058,6 +2124,27 @@
       </div>
     </div>
 
+    <footer class="app-footer">
+      <div class="app-footer-card">
+        <div class="app-footer-title">¿Querés colaborar con La Jodita?</div>
+        <div class="app-footer-text">
+          Invitamos a colaboradores a sumar ideas y dejar mejoras en
+          <a
+            href="https://github.com/LautaroEmanuelG"
+            target="_blank"
+            rel="noopener noreferrer"
+            >LautaroEmanuelG</a
+          > en GitHub para seguir evolucionando la app.
+        </div>
+        <div class="app-footer-meta">
+          <span>
+            © <span id="footer-year"></span> Todos los derechos reservados.
+          </span>
+          <span class="app-footer-powered">Powered by ...</span>
+        </div>
+      </div>
+    </footer>
+
     <!-- History drawer -->
     <div
       id="history-overlay"
@@ -2315,6 +2402,11 @@
         if (!el) return;
         el.textContent = APP_VERSION_LABEL;
         el.title = `Versión ${APP_VERSION.major}.${APP_VERSION.minor}.${APP_VERSION.patch}`;
+      }
+      function renderFooterYear() {
+        const el = document.getElementById('footer-year');
+        if (!el) return;
+        el.textContent = String(new Date().getFullYear());
       }
 
       // ─── STEP NAVIGATION ──────────────────────────────────────────────────────────
@@ -3865,6 +3957,7 @@
       document.getElementById('base-currency-select').value =
         state.baseCurrency;
       renderAppVersion();
+      renderFooterYear();
       renderHeaderName();
       renderChips();
       renderExtraCurrencies();
