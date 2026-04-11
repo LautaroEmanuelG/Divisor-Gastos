@@ -6,7 +6,7 @@ import { getRedisClient } from '../../lib/redis';
 const SHARE_ID = Astro.params.id ?? '';
 const IS_VALID_SHARE_ID = /^[a-z0-9]{4,10}$/.test(SHARE_ID);
 
-const FALLBACK_TITLE = 'La jodita ... :$ 💸 🍻 🧉';
+const FALLBACK_AMOUNT = '150...';
 const APP_EMOJI_POOL = ['💸', '🍻', '🧉', '🎉', '😎', '🍕', '🚕', '🏝️'];
 
 const parseMoneyValue = (value: unknown): number => {
@@ -70,6 +70,21 @@ const getEmojiTrio = (seedText: string): string => {
   return trio.join(' ');
 };
 
+const parseSnapshot = (value: unknown): Record<string, unknown> | null => {
+  if (!value) return null;
+  if (typeof value === 'string') {
+    try {
+      return JSON.parse(value) as Record<string, unknown>;
+    } catch {
+      return null;
+    }
+  }
+  if (typeof value === 'object') {
+    return value as Record<string, unknown>;
+  }
+  return null;
+};
+
 let totalInBase = 0;
 let emojiTrio = '💸 🍻 🧉';
 let shouldRedirect = false;
@@ -78,10 +93,10 @@ if (IS_VALID_SHARE_ID) {
   emojiTrio = getEmojiTrio(SHARE_ID);
   try {
     const redis = await getRedisClient();
-    const raw = await redis.get<string>(`s:${SHARE_ID}`);
+    const raw = await redis.get<unknown>(`s:${SHARE_ID}`);
+    const parsed = parseSnapshot(raw);
 
-    if (raw) {
-      const parsed = JSON.parse(raw) as Record<string, unknown>;
+    if (parsed) {
       const expenses = Array.isArray(parsed.expenses) ? parsed.expenses : [];
       totalInBase = sumExpensesBase(expenses);
       shouldRedirect = true;
@@ -93,22 +108,42 @@ if (IS_VALID_SHARE_ID) {
 
 const TOTAL_INT = Math.round(totalInBase);
 const TENSION_AMOUNT = getTensionAmount(TOTAL_INT);
-const TITLE = shouldRedirect
-  ? `La jodita ${TENSION_AMOUNT} :$ ${emojiTrio}`
-  : FALLBACK_TITLE;
-const OG_IMAGE = `${Astro.url.origin}/api/og/${SHARE_ID}.png`;
+const SHARE_AMOUNT = shouldRedirect ? TENSION_AMOUNT : FALLBACK_AMOUNT;
+const TITLE = `La Jodita | ${SHARE_AMOUNT} :$`;
+const OG_DESCRIPTION = 'Hagan números, cierren cuentas y hasta la próxima.';
+const OG_IMAGE =
+  IS_VALID_SHARE_ID && SHARE_ID
+    ? `${Astro.url.origin}/api/og/${SHARE_ID}.png`
+    : `${Astro.url.origin}/api/og/default.png`;
 const DESTINATION = `/?s=${encodeURIComponent(SHARE_ID)}`;
 ---
 
 <!doctype html>
 <html lang="es">
   <head>
+    <!-- Charset & Viewport -->
     <meta charset="UTF-8" />
     <meta
       name="viewport"
-      content="width=device-width, initial-scale=1.0"
+      content="width=device-width, initial-scale=1.0, maximum-scale=5.0"
     />
+
+    <!-- SEO Básico -->
     <title>{TITLE}</title>
+    <meta
+      name="description"
+      content={OG_DESCRIPTION}
+    />
+    <meta
+      name="robots"
+      content="index, follow, max-image-preview:large"
+    />
+    <meta
+      name="language"
+      content="es"
+    />
+
+    <!-- Open Graph (Facebook, LinkedIn, etc) -->
     <meta
       property="og:type"
       content="website"
@@ -120,6 +155,10 @@ const DESTINATION = `/?s=${encodeURIComponent(SHARE_ID)}`;
     <meta
       property="og:title"
       content={TITLE}
+    />
+    <meta
+      property="og:description"
+      content={OG_DESCRIPTION}
     />
     <meta
       property="og:url"
@@ -141,6 +180,8 @@ const DESTINATION = `/?s=${encodeURIComponent(SHARE_ID)}`;
       property="og:locale"
       content="es_AR"
     />
+
+    <!-- Twitter Card -->
     <meta
       name="twitter:card"
       content="summary_large_image"
@@ -150,13 +191,47 @@ const DESTINATION = `/?s=${encodeURIComponent(SHARE_ID)}`;
       content={TITLE}
     />
     <meta
+      name="twitter:description"
+      content={OG_DESCRIPTION}
+    />
+    <meta
       name="twitter:image"
       content={OG_IMAGE}
     />
+
+    <!-- Favicon & Icons -->
     <link
       rel="icon"
       href="/icon/la-jodita.svg"
+      type="image/svg+xml"
     />
+    <link
+      rel="apple-touch-icon"
+      href="/icon/la-jodita.svg"
+    />
+
+    <!-- Theme & Color -->
+    <meta
+      name="theme-color"
+      content="#6c5ce7"
+    />
+
+    <!-- Canonical URL -->
+    <link
+      rel="canonical"
+      href="https://la-jodita.vercel.app/"
+    />
+
+    <!-- Performance -->
+    <link
+      rel="preconnect"
+      href="https://api.upstash.io"
+    />
+    <link
+      rel="dns-prefetch"
+      href="https://api.upstash.io"
+    />
+
     {
       shouldRedirect && (
         <meta

@@ -121,7 +121,23 @@ localStorage  Persistencia local para historial del navegador
 - En mobile, la tabla de balance prioriza avatar sobre texto
 - No reemplazar `style is:global`
 
-## ☁️ Variables de entorno (Vercel)
+## 🔍 SEO y OpenGraph
+
+La Jodita está completamente optimizada para compartir en redes sociales y para búsquedas:
+
+- **Meta tags SEO**: descripción, keywords, robots, revisit-after
+- **OpenGraph**: para Facebook, LinkedIn, WhatsApp, Slack
+- **Twitter Card**: preview completo al compartir en Twitter/X
+- **Imágenes dinámicas**: cada sesión genera su propia imagen OG con el total y emojis
+- **Cache optimizado**: imágenes cacheadas 24h en CDN de Vercel
+- **Robots.txt**: configuración correcta para buscadores
+
+Cuando alguien comparte `https://la-jodita.vercel.app/s/abc123`, la plataforma automáticamente descarga una imagen PNG personalizada generada en el servidor.
+
+Para ver la tarjeta antes de compartir, abrí `/open-graph` o usá `/open-graph?id=abc123` con un ID real de sesión.
+Esa vista de preview solo responde en `localhost`; en producción devuelve `404`.
+
+La documentación de desarrollo, patrones, SEO y operativa debe mantenerse únicamente en [CLAUDE.md](./CLAUDE.md), [AGENT.md](./AGENT.md) y este README.
 
 Para habilitar sesiones compartidas entre usuarios, configurá estas variables en el proyecto de Vercel:
 
@@ -164,7 +180,8 @@ npm run preview  # Preview del build de producción
    - `README.md`
    - `CLAUDE.md`
    - `agent.md`
-5. No romper compatibilidad de claves en localStorage.
+5. No crear markdown extra de información, resumen o guías; si hace falta documentar algo relevante, actualizar solo estos tres archivos.
+6. No romper compatibilidad de claves en localStorage.
 
 ---
 

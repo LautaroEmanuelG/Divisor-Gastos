@@ -1,0 +1,69 @@
+---
+export const prerender = false;
+
+const LOCALHOST_HOSTNAMES = new Set(['localhost', '127.0.0.1', '::1']);
+const isLocalPreview =
+  LOCALHOST_HOSTNAMES.has(Astro.url.hostname) ||
+  Astro.url.hostname.endsWith('.localhost');
+
+if (!isLocalPreview) {
+  return new Response('Not found', { status: 404 });
+}
+
+const requestedId = (Astro.url.searchParams.get('id') ?? '').trim();
+const isValidId = /^[a-z0-9]{4,10}$/.test(requestedId);
+const ogImage = isValidId
+  ? `/api/og/${requestedId}.png`
+  : '/api/og/default.png';
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
+    <meta
+      name="robots"
+      content="noindex, nofollow"
+    />
+    <title>Open Graph Preview</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        height: 100%;
+        background: #0f172a;
+      }
+      .wrap {
+        width: 100%;
+        min-height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        box-sizing: border-box;
+      }
+      img {
+        width: min(1200px, 100%);
+        height: auto;
+        display: block;
+        border-radius: 14px;
+        box-shadow: 0 16px 46px rgba(0, 0, 0, 0.45);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        background: #111827;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="wrap">
+      <img
+        src={ogImage}
+        alt="Preview Open Graph"
+      />
+    </main>
+  </body>
+</html>

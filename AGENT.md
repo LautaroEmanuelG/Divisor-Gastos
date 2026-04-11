@@ -53,6 +53,24 @@ Mantener y evolucionar La Jodita sin romper:
 - Mantener responsive mobile
 - No introducir librerías de estilos externas
 
+## 🔍 SEO y OpenGraph
+
+No tocar sin revisar la sección de SEO y OpenGraph en este README y en CLAUDE.md.
+
+Archivos críticos:
+
+- `src/pages/index.astro` — metatags de home
+- `src/pages/s/[id].astro` — metatags de sesiones compartidas
+- `src/pages/api/og/[id].png.ts` — generador de imágenes dinámicas (Vercel OG)
+- `public/robots.txt` — configuración para buscadores
+
+Reglas de SEO:
+
+- No cambiar la estructura de metatags sin entender OpenGraph
+- La imagen OG se genera automáticamente en `/api/og/[id].png` — NO editar endpoints sin revisar cache headers
+- Las sesiones compartidas incluyen `og:image` que apunta a `/api/og/[id].png`
+- Cache optimizado: 24h en CDN de Vercel, 5min en navegador
+
 ---
 
 ## 🔖 Versionado
@@ -82,6 +100,7 @@ Regla obligatoria:
 3. Compilar con npm run build.
 4. Si hay cambios funcionales, actualizar README.md, CLAUDE.md y este archivo.
 5. No cambiar claves de localStorage ya publicadas.
+6. No generar archivos markdown extra de información, resumen, guía o quick-start; la documentación operativa debe concentrarse en README.md, CLAUDE.md y AGENT.md.
 
 ---
 
