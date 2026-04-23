@@ -164,10 +164,25 @@ La-Jodita-Gastos/
 ## 🛠️ Comandos
 
 ```bash
-npm run dev      # Servidor de desarrollo (http://localhost:4321)
-npm run build    # Build de producción en /dist
-npm run preview  # Preview del build de producción
+npm run dev         # Servidor de desarrollo (http://localhost:4321)
+npm run dev:bitrix  # Dev server + Cloudflare Tunnel (URL HTTPS pública)
+npm run build       # Build de producción en /dist
+npm run preview     # Preview del build de producción
 ```
+
+### 🌐 Dev tunnel (opcional)
+
+`npm run dev:bitrix` levanta el dev server **y** un Cloudflare Tunnel en un único proceso.
+Útil para exponer la app a URL HTTPS pública (testear desde celular, webhooks, iframes).
+
+Requisitos:
+
+- `cloudflared` instalado (`winget install Cloudflare.cloudflared` / `brew install cloudflared`)
+- `CLOUDFLARE_TUNNEL_TOKEN` en `.env.local` (ver [env.example](./env.example))
+- Public Hostname configurado en Cloudflare Zero Trust apuntando a `localhost:4321`
+
+El orquestador vive en [scripts/dev-bitrix.ts](./scripts/dev-bitrix.ts). Guía completa en
+[DevelopLocal/promptInicial.md](./DevelopLocal/promptInicial.md) (carpeta gitignored, toolkit interno).
 
 ---
 

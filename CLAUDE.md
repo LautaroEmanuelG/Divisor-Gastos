@@ -121,10 +121,17 @@ Política obligatoria:
 ## 🛠️ Comandos
 
 ```bash
-npm run dev
+npm run dev         # Astro dev local (http://localhost:4321)
+npm run dev:bitrix  # Astro dev + Cloudflare Tunnel en un solo proceso
 npm run build
 npm run preview
 ```
+
+`dev:bitrix` lee `.env.local` (ver `env.example`), auto-detecta Astro como framework, y levanta
+`cloudflared tunnel run --token $CLOUDFLARE_TUNNEL_TOKEN` junto con `astro dev`.
+Procesos vinculados: si uno muere, el otro se cierra. Orquestador en `scripts/dev-bitrix.ts`
+(idéntico entre proyectos — no modificar). `astro.config.mjs` activa `hmr.clientPort: 443` solo
+cuando `npm_lifecycle_event === 'dev:bitrix'`, así el `npm run dev` local no se rompe.
 
 ---
 

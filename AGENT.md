@@ -110,3 +110,16 @@ Regla obligatoria:
 - recorrido manual de pasos 1 a 4
 - prueba de compartir/cargar sesión
 - verificación de historial y badge de versión
+
+---
+
+## 🌐 Dev tunnel (opcional)
+
+`npm run dev:bitrix` levanta `astro dev` + Cloudflare Tunnel como procesos vinculados.
+
+- Orquestador: `scripts/dev-bitrix.ts` (kit portable, idéntico entre proyectos — no editar)
+- Env vars: `CLOUDFLARE_TUNNEL_TOKEN` en `.env.local` (ver `env.example`)
+- Config: `astro.config.mjs` activa HMR remoto solo cuando `npm_lifecycle_event === 'dev:bitrix'`
+- Guía completa: `DevelopLocal/promptInicial.md` (gitignored, toolkit interno)
+
+Si no hace falta exponer a internet, seguir usando `npm run dev` normal.
